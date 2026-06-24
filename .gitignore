@@ -5,3 +5,4 @@ dist/
 build/
 .senandika_cache/
 hitung.sen
+.vercel
