@@ -185,21 +185,6 @@
         }
         .btn-secondary:hover { border-color: var(--accent-dim); }
 
-        .hero-scroll {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            animation: fadeIn 1s ease 1.5s forwards;
-        }
-        .hero-scroll svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-dim);
-            animation: bounce 2s ease infinite;
-        }
-
         /* Features */
         .features { padding: 8rem 2rem; }
         .section-label {
@@ -514,10 +499,6 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(6px); }
-        }
 
         .reveal {
             opacity: 0;
@@ -582,11 +563,6 @@
         <div class="hero-actions">
             <a href="#instalasi" class="btn btn-primary">Mulai Menulis</a>
             <a href="https://pypi.org/project/senandika/" class="btn btn-secondary" target="_blank">PyPI</a>
-        </div>
-        <div class="hero-scroll">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
-                <path d="M12 5v14M19 12l-7 7-7-7"/>
-            </svg>
         </div>
     </div>
 
