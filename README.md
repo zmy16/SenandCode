@@ -27,13 +27,6 @@ Kode seharusnya indah. Bukan hanya berfungsi — ia harus berbicara. SenandCode 
 pip install senandika
 ```
 
-Lalu jalankan:
-
-```bash
-senandika program.sen   # Jalankan file
-senandika               # Masuk REPL
-```
-
 ### Cara 2: Clone dari GitHub
 
 ```bash
