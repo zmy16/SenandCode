@@ -2,14 +2,16 @@
   <img src="docs/favicon.svg" alt="SenandCode Logo" width="80">
 </p>
 
-# SenandCode
+<h1 align="center">SenandCode</h1>
 
-> *Bahasa pemrograman puitis dalam Bahasa Indonesia*
+<p align="center"><em>Bahasa pemrograman puitis dalam Bahasa Indonesia</em></p>
 
-**SenandCode** — dari *senandika* (dialog batin yang puitis) + *code* — adalah bahasa pemrograman yang indah seperti puisi. Setiap baris adalah puisi. Setiap program adalah antologi.
+<p align="center"><strong>SenandCode</strong> — dari <em>senandika</em> (dialog batin yang puitis) + <em>code</em> — adalah bahasa pemrograman yang indah seperti puisi. Setiap baris adalah puisi. Setiap program adalah antologi.</p>
 
-![License](https://img.shields.io/github/license/zmy16/SenandCode)
-![Stars](https://img.shields.io/github/stars/zmy16/SenandCode)
+<p align="center">
+  <img src="https://img.shields.io/github/license/zmy16/SenandCode" alt="License">
+  <img src="https://img.shields.io/github/stars/zmy16/SenandCode" alt="Stars">
+</p>
 
 ## Filosofi
 
