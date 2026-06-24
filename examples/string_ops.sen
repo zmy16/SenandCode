@@ -1,0 +1,17 @@
+// Demo string operations
+simpan "SenandCode" dalam teks;
+lukiskan "Teks: " lalu teks;
+
+// String length
+lukiskan "Panjang: " lalu panjang(teks);
+
+// String indexing
+lukiskan "Huruf pertama: " lalu teks[0];
+lukiskan "Huruf terakhir: " lalu teks[panjang(teks) - 1];
+
+// Array of strings
+simpan ["Indah", "seperti", "puisi"] dalam kata;
+lukiskan "Kata: " lalu kata;
+lukiskan "Panjang array: " lalu panjang(kata);
+lukiskan "Kata pertama: " lalu kata[0];
+lukiskan "Kata[0][0]: " lalu kata[0][0];
