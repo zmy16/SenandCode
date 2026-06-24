@@ -299,7 +299,7 @@ Tidak ada kompilasi ke bytecode. Tidak ada dependency eksternal. Murni Python.
 
 **Penulis:** [Muhammad Raid Zakwan](https://github.com/zmy16)
 
-Dibangun dengan cinta untuk bahasa Indonesia dan puisi. Terinspirasi dari [Sunda Language](https://github.com/Muhammad-Ikhwan-Fathulloh/Sunda-Language) oleh Muhammad Ikhwan Fathulloh.
+Dibangun dengan cinta untuk bahasa Indonesia dan puisi.
 
 ## Lisensi
 

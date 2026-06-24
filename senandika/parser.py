@@ -119,7 +119,6 @@ class Parser:
             expr = self.expression()
             self.eat("SEMICOLON")
             if isinstance(target, tuple) and target[0] == "index_get":
-                # Unwrap: index_assign wants (obj, index, value)
                 return ("index_assign", target[1], target[2], expr)
             return ("member_assign", target, expr)
         if self.current_token() and self.current_token()[0] == "SEMICOLON":
@@ -339,7 +338,6 @@ class Parser:
                     self.eat("COLON")
                 body = self.block(stop_kinds={"KEYWORD_END"})
                 items.append(("function", name, params, body))
-                # Consume the trailing KEYWORD_END that block() left unconsumed
                 if self.current_token() and self.current_token()[0] == "KEYWORD_END":
                     self.eat("KEYWORD_END")
             else:
@@ -352,7 +350,6 @@ class Parser:
             self.eat("SEMICOLON")
         return ("expr", expr)
 
-    # Expression parsing — precedence climbing
     def expression(self):
         return self.concat()
 
@@ -487,9 +484,6 @@ class Parser:
                 args = self.parse_args_rparen()
                 self.eat("RPAREN")
                 obj = ("call", obj if isinstance(obj, str) else obj[1] if obj[0] == "variable" else None, args)
-                # If obj is not a simple variable name, this is tricky. But we only hit this for variable calls
-                # that were already handled in postfix after DOT — but for direct func calls like `func()`
-                # the parser path goes through factor -> variable -> postfix -> LPAREN, so obj is ("variable", name)
             elif self.current_token()[0] == "LBRACKET":
                 self.eat("LBRACKET")
                 index = self.expression()

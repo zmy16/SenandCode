@@ -8,16 +8,13 @@ class Lexer:
 
     def tokenize(self):
         code = self.code
-        # Preserve strings before multi-word keyword replacement
         strings = []
         def _save_str(m):
             strings.append(m.group(0))
             return f"\0STR{len(strings)-1}\0"
         code = re.sub(r'"[^"]*"', _save_str, code)
-        # Handle multi-word keywords first
         code = code.replace("atau jika", "ATAUJIKA")
         code = code.replace("jika tidak", "JIKATIDAK")
-        # Restore strings
         for i, s in enumerate(strings):
             code = code.replace(f"\0STR{i}\0", s)
 
@@ -74,8 +71,6 @@ class Lexer:
         regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in token_specs)
         pattern = re.compile(regex)
 
-        # Substitutions above (multi-word keywords, string placeholders) must
-        # not add or remove newlines, or line/col tracking breaks.
         line_starts = [0]
         for i, ch in enumerate(code):
             if ch == '\n':

@@ -1,18 +1,10 @@
-"""
-Entry point utama SenandCode.
-
-Cara menjalankan:
-  senandika program.sen
-  python -m senandika program.sen
-  python -m senandika          # REPL mode
-"""
+"""Entry point utama SenandCode."""
 
 import sys
 import os
 import io
 import argparse
 
-# Fix Windows console encoding for Unicode
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
@@ -24,7 +16,7 @@ from senandika.interpreter import Interpreter
 
 def repl():
     """Interactive REPL dengan state yang dipertahankan."""
-    print("✦ SenandCode v0.1.0 🌸")
+    print("✦ SenandCode v0.1.0")
     print("  Setiap baris adalah puisi.")
     print('  Ketik "selesai" untuk keluar.\n')
 
@@ -36,11 +28,9 @@ def repl():
             if not code:
                 continue
             if code.lower() in ("selesai", "keluar", "exit", "quit"):
-                print("  Sampai jumpa dalam puisi berikutnya... 🌸")
+                print("  Sampai jumpa dalam puisi berikutnya...")
                 break
 
-            # Auto-append semicolon if the statement doesn't already end with one
-            # and isn't a block-starting keyword that expects ':'
             repl_no_semi = ("seandainya", "atau", "jika", "untuk", "selagi", "puisi", "wajah", "coba", "raih", "akhirnya", "selesai")
             stripped = code.strip()
             if not stripped.endswith(";") and not stripped.endswith(":"):
@@ -59,10 +49,10 @@ def repl():
             interpreter.execute(ast)
 
         except KeyboardInterrupt:
-            print("\n  Sampai jumpa 🌸")
+            print("\n  Sampai jumpa")
             break
         except EOFError:
-            print("\n  Sampai jumpa 🌸")
+            print("\n  Sampai jumpa")
             break
         except Exception as e:
             print(f"  ✗ {e}")
@@ -71,7 +61,7 @@ def repl():
 def main():
     parser = argparse.ArgumentParser(
         prog="senandika",
-        description="SenandCode - Bahasa pemrograman puitis dalam Bahasa Indonesia 🌸",
+        description="SenandCode - Bahasa pemrograman puitis dalam Bahasa Indonesia",
         epilog="Contoh: senandika contoh/halo.sen",
     )
     parser.add_argument("file", nargs="?", help="File .sen yang akan dijalankan")
