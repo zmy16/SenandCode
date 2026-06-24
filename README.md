@@ -1,8 +1,8 @@
-# SenandCode ✨
-
 <p align="center">
   <img src="docs/favicon.svg" alt="SenandCode Logo" width="80">
 </p>
+
+# SenandCode
 
 > *Bahasa pemrograman puitis dalam Bahasa Indonesia*
 
