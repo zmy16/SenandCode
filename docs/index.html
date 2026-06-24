@@ -951,9 +951,17 @@
         function copyText(text, btn) {
             navigator.clipboard.writeText(text);
             const fb = btn.querySelector('.copy-feedback');
-            if (fb) {
-                fb.classList.add('show');
-                setTimeout(() => fb.classList.remove('show'), 2000);
+            const svg = btn.querySelector('svg');
+            if (fb) fb.classList.add('show');
+            if (svg) {
+                const original = svg.outerHTML;
+                svg.outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                btn.style.color = '#4ade80';
+                setTimeout(() => {
+                    svg.outerHTML = original;
+                    btn.style.color = '';
+                    if (fb) fb.classList.remove('show');
+                }, 2000);
             }
         }
 
