@@ -954,10 +954,16 @@
             const svg = btn.querySelector('svg');
             if (fb) fb.classList.add('show');
             if (svg) {
-                const original = svg.outerHTML;
-                svg.outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+                const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                svg.outerHTML = checkIcon;
                 btn.style.color = '#4ade80';
-                setTimeout(() => { svg.outerHTML = original; btn.style.color = ""; if (fb) fb.classList.remove("show"); }, 1500);
+                setTimeout(() => {
+                    const newSvg = btn.querySelector('svg');
+                    if (newSvg) newSvg.outerHTML = copyIcon;
+                    btn.style.color = '';
+                    if (fb) fb.classList.remove('show');
+                }, 1500);
             }
         }
 
