@@ -21,30 +21,50 @@ Kode seharusnya indah. Bukan hanya berfungsi — ia harus berbicara. SenandCode 
 
 ## Instalasi
 
-Clone dan jalankan langsung dari source:
+### Cara 1: Install via pip (direkomendasikan)
+
+```bash
+pip install senandika
+```
+
+Lalu jalankan:
+
+```bash
+senandika program.sen   # Jalankan file
+senandika               # Masuk REPL
+```
+
+### Cara 2: Clone dari GitHub
 
 ```bash
 git clone https://github.com/zmy16/SenandCode.git
 cd SenandCode
+python -m senandika examples/hello.sen
 ```
-
-Pastikan Python 3.7+ sudah terinstal. Tidak perlu dependensi eksternal.
 
 ## Cara Menjalankan
 
 **Jalankan file `.sen`:**
 
 ```bash
-python -m senandika examples/hello.sen
+# Via pip
+senandika program.sen
+
+# Via source
+python -m senandika program.sen
 ```
 
 **REPL mode interaktif:**
 
 ```bash
+# Via pip
+senandika
+
+# Via source
 python -m senandika
 ```
 
-Di dalam REPL, semicolon (`;`) opsional. Tekan `Ctrl+D` atau `Ctrl+Z` untuk keluar.
+Di dalam REPL, semicolon (`;`) opsional. Ketik `selesai` untuk keluar.
 
 **Windows — double click `run.bat`:**
 
