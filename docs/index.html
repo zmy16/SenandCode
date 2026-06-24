@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenandCode — Bahasa Pemrograman Puitis</title>
+    <meta name="description" content="SenandCode — bahasa pemrograman puitis dalam Bahasa Indonesia. Setiap baris adalah puisi. Setiap program adalah antologi.">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>✦</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #0a0a0a;
+            --bg-surface: #111111;
+            --bg-card: #1a1a1a;
+            --text-primary: #f0ece4;
+            --text-muted: #a09888;
+            --text-dim: #6b6058;
+            --accent: #d4a853;
+            --accent-dim: #a08040;
+            --accent-glow: rgba(212, 168, 83, 0.15);
+            --border: #2a2520;
+            --code-bg: #0d0d0d;
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            z-index: 1000;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease, backdrop-filter 0.3s ease;
+        }
+        nav.scrolled {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-cta {
+            padding: 0.5rem 1.25rem;
+            background: var(--accent);
+            color: var(--bg-deep) !important;
+            border-radius: 6px;
+            font-weight: 600 !important;
+            transition: background 0.2s ease, transform 0.2s ease !important;
+        }
+        .nav-cta:hover { background: #e0b860; transform: translateY(-1px); }
+
+        /* Sections */
+        section { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 6rem;
+            position: relative;
+        }
+        .hero-eyebrow {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.2s forwards;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            max-width: 900px;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.4s forwards;
+        }
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .hero-sub {
+            font-size: clamp(1.125rem, 2vw, 1.375rem);
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.6s forwards;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.8s forwards;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-deep);
+        }
+        .btn-primary:hover { background: #e0b860; transform: translateY(-2px); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { border-color: var(--accent-dim); }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeIn 1s ease 1.5s forwards;
+        }
+        .hero-scroll svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-dim);
+            animation: bounce 2s ease infinite;
+        }
+
+        /* Features */
+        .features { padding: 8rem 2rem; }
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+        .section-desc {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 4rem;
+            font-weight: 300;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: var(--accent-dim);
+            background: var(--bg-card);
+            transform: translateY(-4px);
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+        .feature-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--accent);
+        }
+        .feature-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            line-height: 1.7;
+        }
+
+        /* Syntax Showcase */
+        .syntax { padding: 6rem 2rem 8rem; }
+        .syntax-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        .syntax-content { position: sticky; top: 8rem; }
+        .syntax-tabs { display: flex; flex-direction: column; gap: 0.5rem; }
+        .syntax-tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .syntax-tab:hover { border-color: var(--accent-dim); color: var(--text-primary); }
+        .syntax-tab.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+        .syntax-code {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .syntax-header {
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .syntax-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .syntax-dot:nth-child(1) { background: #ff5f57; }
+        .syntax-dot:nth-child(2) { background: #febc2e; }
+        .syntax-dot:nth-child(3) { background: #28c840; }
+        .syntax-pre {
+            padding: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            min-height: 280px;
+        }
+        .kw { color: var(--accent); font-weight: 500; }
+        .str { color: #7dd3c0; }
+        .num { color: #c4b5fd; }
+        .cmt { color: var(--text-dim); font-style: italic; }
+        .op { color: #f9a8d4; }
+        .fn { color: #93c5fd; }
+        .var { color: var(--text-primary); }
+        .sym { color: var(--text-muted); }
+
+        /* Install */
+        .install { padding: 6rem 2rem 8rem; }
+        .install-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .install-steps { display: flex; flex-direction: column; gap: 2rem; }
+        .install-step {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+        .install-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .install-step h4 {
+            font-size: 1.0625rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .install-step p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        .install-code {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: color 0.2s ease;
+        }
+        .copy-btn:hover { color: var(--text-primary); }
+        .copy-btn svg { width: 16px; height: 16px; stroke: currentColor; }
+
+        /* Keywords Table */
+        .keywords { padding: 6rem 2rem 8rem; }
+        .keywords-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .keywords-table th {
+            text-align: left;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+        .keywords-table td {
+            padding: 1rem 1.5rem;
+            font-size: 0.9375rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .keywords-table td:first-child {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-size: 0.875rem;
+        }
+        .keywords-table tr:last-child td { border-bottom: none; }
+
+        /* CTA */
+        .cta {
+            padding: 8rem 2rem;
+            text-align: center;
+        }
+        .cta-inner {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .cta h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+        .cta p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-copy {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        .footer-links { display: flex; gap: 1.5rem; }
+        .footer-links a {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-links a:hover { color: var(--accent); }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .syntax-container { grid-template-columns: 1fr; }
+            .syntax-content { position: static; }
+            .features-grid { grid-template-columns: 1fr; }
+            .install-box { padding: 2rem 1.5rem; }
+            section { padding-left: 1.25rem; padding-right: 1.25rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav id="navbar">
+        <a href="#" class="nav-logo">Senand<span>Code</span></a>
+        <div class="nav-links">
+            <a href="#fitur">Fitur</a>
+            <a href="#sintaks">Sintaks</a>
+            <a href="#instalasi">Instalasi</a>
+            <a href="#keyword">Keyword</a>
+            <a href="https://github.com/zmy16/SenandCode" class="nav-cta" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <p class="hero-eyebrow">Bahasa Pemrograman Puitis dalam Bahasa Indonesia</p>
+        <h1>Setiap baris<br>adalah <em>puisi</em></h1>
+        <p class="hero-sub">
+            SenandCode mengubah kode menjadi antologi. Tulis program dengan kata-kata yang indah, jalankan logika yang nyata.
+        </p>
+        <div class="hero-actions">
+            <a href="#instalasi" class="btn btn-primary">Mulai Menulis</a>
+            <a href="https://pypi.org/project/senandika/" class="btn btn-secondary" target="_blank">PyPI</a>
+        </div>
+        <div class="hero-scroll">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+    </div>
+
+    <section id="fitur" class="features">
+        <p class="section-label reveal">Fitur</p>
+        <h2 class="section-title reveal">Indah bukan berarti<br>lemah</h2>
+        <p class="section-desc reveal">
+            Bahasa puitis dengan fitur lengkap: variabel, percabangan, perulangan, fungsi, OOP, array, hingga penanganan error.
+        </p>
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3>Sintaksis Puitis</h3>
+                <p>Kata kunci dalam Bahasa Indonesia yang indah. <code>lukiskan "Halo"</code> menggantikan <code>print("Halo")</code>.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3>Zero Dependency</h3>
+                <p>Murni Python tanpa dependensi eksternal. Instal, tulis, jalankan. Tidak ada setup rumit.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
+                </div>
+                <h3>Array & Indexing</h3>
+                <p>Larik dengan indexing penuh. <code>[1,2,3]</code>, <code>arr[0]</code>, <code>panjang(arr)</code> — semua bekerja.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3>OOP & Inheritance</h3>
+                <p>Kelas dengan konstruktor <code>lahir</code>, pewarisan <code>warisi</code>, dan referensi <code>diri</code>.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h3>Error Handling</h3>
+                <p>Coba-raih-akhirnya untuk tangkap error. Pesan kesalahan puitis dengan tracking baris dan kolom.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <h3>REPL Interaktif</h3>
+                <p>Ketik langsung di terminal tanpa file. Semicolon otomatis. Keluar dengan mengetik <code>selesai</code>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sintaks" class="syntax">
+        <p class="section-label reveal">Sintaks</p>
+        <h2 class="section-title reveal">Lihat sendiri<br>indahannya</h2>
+        <p class="section-desc reveal">
+            Setiap contoh bisa langsung dijalankan. Tulis, simpan sebagai <code>.sen</code>, lalu <code>senandika program.sen</code>.
+        </p>
+        <div class="syntax-container reveal">
+            <div class="syntax-content">
+                <div class="syntax-tabs">
+                    <button class="syntax-tab active" data-tab="hello">Halo Dunia</button>
+                    <button class="syntax-tab" data-tab="percabangan">Percabangan</button>
+                    <button class="syntax-tab" data-tab="perulangan">Perulangan</button>
+                    <button class="syntax-tab" data-tab="fungsi">Fungsi</button>
+                    <button class="syntax-tab" data-tab="oop">OOP</button>
+                    <button class="syntax-tab" data-tab="array">Array</button>
+                </div>
+            </div>
+            <div class="syntax-code">
+                <div class="syntax-header">
+                    <span class="syntax-dot"></span>
+                    <span class="syntax-dot"></span>
+                    <span class="syntax-dot"></span>
+                </div>
+                <pre class="syntax-pre" id="codeDisplay"></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="instalasi" class="install">
+        <p class="section-label reveal">Instalasi</p>
+        <h2 class="section-title reveal">Langkah pertama</h2>
+        <p class="section-desc reveal">
+            Instal dari PyPI atau clone dari GitHub. Tidak ada konfigurasi tambahan.
+        </p>
+        <div class="install-box reveal">
+            <div class="install-steps">
+                <div class="install-step">
+                    <div class="install-num">1</div>
+                    <div>
+                        <h4>Install via pip</h4>
+                        <p>Langsung dari PyPI repository.</p>
+                        <div class="install-code">
+                            <code>pip install senandika</code>
+                            <button class="copy-btn" onclick="copyText('pip install senandika')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="install-num">2</div>
+                    <div>
+                        <h4>Tulis puisi pertamamu</h4>
+                        <p>Buat file <code>hello.sen</code> dengan isi:</p>
+                        <div class="install-code" style="display: block; white-space: pre; font-size: 0.75rem;">
+<code>lukiskan "Halo, Dunia!";</code></div>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <div class="install-num">3</div>
+                    <div>
+                        <h4>Jalankan</h4>
+                        <p>Terminal akan membacakannya untukmu.</p>
+                        <div class="install-code">
+                            <code>senandika hello.sen</code>
+                            <button class="copy-btn" onclick="copyText('senandika hello.sen')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="keyword" class="keywords">
+        <p class="section-label reveal">Referensi</p>
+        <h2 class="section-title reveal">Kamus kata kunci</h2>
+        <p class="section-desc reveal">
+            Semua keyword dalam Bahasa Indonesia puitis, diterjemahkan ke konsep pemrograman.
+        </p>
+        <table class="keywords-table reveal">
+            <thead>
+                <tr><th>Keyword</th><th>Fungsi</th><th>Padanan</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>simpan / dalam</td><td>Deklarasi variabel</td><td>let / var</td></tr>
+                <tr><td>lukiskan</td><td>Cetak output</td><td>print()</td></tr>
+                <tr><td>lalu</td><td>Gabung teks</td><td>concatenation</td></tr>
+                <tr><td>seandainya</td><td>Percabangan</td><td>if</td></tr>
+                <tr><td>jika tidak</td><td>Fallback</td><td>else</td></tr>
+                <tr><td>untuk / sampai</td><td>Perulangan</td><td>for / range</td></tr>
+                <tr><td>selagi</td><td>Perulangan kondisi</td><td>while</td></tr>
+                <tr><td>puisi</td><td>Deklarasi fungsi</td><td>function</td></tr>
+                <tr><td>kembalikan</td><td>Return value</td><td>return</td></tr>
+                <tr><td>wajah</td><td>Deklarasi kelas</td><td>class</td></tr>
+                <tr><td>diri</td><td>Self reference</td><td>this / self</td></tr>
+                <tr><td>ciptakan</td><td>Buat objek</td><td>new</td></tr>
+                <tr><td>coba / raih</td><td>Tangkap error</td><td>try / catch</td></tr>
+                <tr><td>benar / palsu</td><td>Boolean</td><td>true / false</td></tr>
+                <tr><td>hampa</td><td>Null value</td><td>null</td></tr>
+                <tr><td>hening / sambung</td><td>Berhenti / lanjut</td><td>break / continue</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="cta">
+        <div class="cta-inner reveal">
+            <p class="section-label">Mulai Sekarang</p>
+            <h2>Tulis puisi pertamamu</h2>
+            <p>Sudah ada di PyPI. Satu perintah untuk memulai.</p>
+            <div class="hero-actions" style="justify-content: center;">
+                <a href="https://pypi.org/project/senandika/" class="btn btn-primary" target="_blank">Install di PyPI</a>
+                <a href="https://github.com/zmy16/SenandCode" class="btn btn-secondary" target="_blank">Lihat di GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-copy">2025 Muhammad Raid Zakwan. MIT License.</p>
+            <div class="footer-links">
+                <a href="https://github.com/zmy16/SenandCode" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/senandika/" target="_blank">PyPI</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const codeExamples = {
+            hello: `<span class="cmt">// Puisi pertama: Halo Dunia</span>
+<span class="kw">lukiskan</span> <span class="str">"Halo, Dunia!"</span><span class="sym">;</span>`,
+
+            percabangan: `<span class="kw">simpan</span> <span class="num">15</span> <span class="kw">dalam</span> <span class="var">x</span><span class="sym">;</span>
+
+<span class="kw">seandainya</span> <span class="var">x</span> <span class="op">></span> <span class="num">10</span><span class="sym">:</span>
+    <span class="kw">lukiskan</span> <span class="str">"Besar"</span><span class="sym">;</span>
+<span class="kw">jika tidak</span><span class="sym">:</span>
+    <span class="kw">lukiskan</span> <span class="str">"Kecil"</span><span class="sym">;</span>
+<span class="kw">selesai</span>`,
+
+            perulangan: `<span class="kw">untuk</span> <span class="var">i</span> <span class="op">=</span> <span class="num">1</span> <span class="kw">sampai</span> <span class="num">5</span> <span class="kw">lakukan</span><span class="sym">:</span>
+    <span class="kw">lukiskan</span> <span class="str">"Hitungan: "</span> <span class="kw">lalu</span> <span class="var">i</span><span class="sym">;</span>
+<span class="kw">selesai</span>`,
+
+            fungsi: `<span class="kw">puisi</span> <span class="fn">luasLingkaran</span><span class="sym">(</span><span class="var">r</span><span class="sym">):</span>
+    <span class="kw">simpan</span> <span class="num">3.14</span> <span class="kw">dalam</span> <span class="var">pi</span><span class="sym">;</span>
+    <span class="kw">kembalikan</span> <span class="var">pi</span> <span class="op">*</span> <span class="var">r</span> <span class="op">*</span> <span class="var">r</span><span class="sym">;</span>
+<span class="kw">selesai</span>
+
+<span class="kw">lukiskan</span> <span class="fn">luasLingkaran</span><span class="sym">(</span><span class="num">7</span><span class="sym">);</span>`,
+
+            oop: `<span class="kw">wajah</span> <span class="fn">Orang</span><span class="sym">:</span>
+    <span class="kw">puisi</span> <span class="fn">lahir</span><span class="sym">(</span><span class="var">nama</span><span class="sym">,</span> <span class="var">umur</span><span class="sym">):</span>
+        <span class="kw">simpan</span> <span class="var">nama</span> <span class="kw">dalam</span> <span class="var">diri</span><span class="sym">.</span><span class="var">nama</span><span class="sym">;</span>
+        <span class="kw">simpan</span> <span class="var">umur</span> <span class="kw">dalam</span> <span class="var">diri</span><span class="sym">.</span><span class="var">umur</span><span class="sym">;</span>
+    <span class="kw">selesai</span>
+<span class="kw">selesai</span>
+
+<span class="kw">simpan</span> <span class="kw">ciptakan</span> <span class="fn">Orang</span><span class="sym">(</span><span class="str">"Asep"</span><span class="sym">,</span> <span class="num">25</span><span class="sym">)</span> <span class="kw">dalam</span> <span class="var">asep</span><span class="sym">;</span>`,
+
+            array: `<span class="kw">simpan</span> <span class="sym">[</span><span class="num">1</span><span class="sym">,</span> <span class="num">2</span><span class="sym">,</span> <span class="num">3</span><span class="sym">,</span> <span class="num">4</span><span class="sym">,</span> <span class="num">5</span><span class="sym">]</span> <span class="kw">dalam</span> <span class="var">angka</span><span class="sym">;</span>
+<span class="kw">lukiskan</span> <span class="fn">panjang</span><span class="sym">(</span><span class="var">angka</span><span class="sym">);</span>     <span class="cmt">// 5</span>
+<span class="kw">lukiskan</span> <span class="var">angka</span><span class="sym">[</span><span class="num">0</span><span class="sym">];</span>         <span class="cmt">// 1</span>
+<span class="kw">lukiskan</span> <span class="var">angka</span><span class="sym">[</span><span class="num">2</span><span class="sym">];</span>         <span class="cmt">// 3</span>`
+        };
+
+        function updateCode(tab) {
+            document.getElementById('codeDisplay').innerHTML = codeExamples[tab];
+            document.querySelectorAll('.syntax-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        }
+
+        document.querySelectorAll('.syntax-tab').forEach(tab => {
+            tab.addEventListener('click', () => updateCode(tab.dataset.tab));
+        });
+
+        updateCode('hello');
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById('progressBar').style.width = (winScroll / height) * 100 + '%';
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
