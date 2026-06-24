@@ -1,0 +1,15 @@
+// Demo array
+simpan [1, 2, 3, 4, 5] dalam angka;
+lukiskan "Array: " lalu angka;
+lukiskan "Panjang: " lalu panjang(angka);
+lukiskan "Index 0: " lalu angka[0];
+lukiskan "Index 2: " lalu angka[2];
+
+// Nested array
+simpan [[1, 2], [3, 4]] dalam matriks;
+lukiskan "Matriks[1][0]: " lalu matriks[1][0];
+
+// Array string
+simpan ["Asep", "Ujang", "Yayan"] dalam nama;
+lukiskan "Nama pertama: " lalu nama[0];
+lukiskan "Jumlah: " lalu panjang(nama);

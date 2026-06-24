@@ -1,0 +1,7 @@
+// Contoh fungsi dengan return
+puisi luasLingkaran(r):
+    simpan 3.14 dalam pi;
+    kembalikan pi * r * r;
+selesai
+
+lukiskan "Luas lingkaran: " lalu luasLingkaran(7);
