@@ -414,15 +414,14 @@
             font-family: var(--font-mono);
             font-size: 0.8125rem;
             color: var(--accent);
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 0.75rem;
-            max-width: 100%;
-            overflow-x: auto;
-            flex-wrap: wrap;
         }
         .install-code code {
-            white-space: nowrap;
+            word-break: break-all;
+            flex: 1;
         }
         .copy-btn {
             background: none;
@@ -432,43 +431,39 @@
             transition: color 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.375rem;
-            font-size: 0.75rem;
-            font-family: var(--font-body);
             flex-shrink: 0;
-            position: relative;
         }
         .copy-btn:hover { color: var(--text-primary); }
         .copy-btn svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
-        .copy-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
+
+        /* Snackbar */
+        .snackbar {
+            position: fixed;
+            bottom: 2rem;
             left: 50%;
-            transform: translateX(-50%) translateY(4px);
-            background: var(--accent);
-            color: var(--bg-deep);
-            padding: 0.375rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            white-space: nowrap;
-            pointer-events: none;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
             opacity: 0;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 10;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
         }
-        .copy-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: var(--accent);
-        }
-        .copy-tooltip.visible {
-            opacity: 1;
+        .snackbar.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .snackbar svg {
+            width: 18px;
+            height: 18px;
+            stroke: #4ade80;
         }
 
         /* Keywords Table */
@@ -614,6 +609,10 @@
 </head>
 <body>
     <div class="progress-bar" id="progressBar"></div>
+    <div class="snackbar" id="snackbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Tersalin
+    </div>
 
     <nav id="navbar">
         <a href="#" class="nav-logo">
@@ -745,8 +744,8 @@
                             <p>Langsung dari PyPI repository.</p>
                             <div class="install-code">
                                 <code>pip install senandika</code>
-                            <button class="copy-btn" onclick="copyText('pip install senandika', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                             </div>
@@ -759,8 +758,8 @@
                             <p>Buat file <code>hello.sen</code> dengan isi:</p>
                             <div class="install-code">
                                 <code>lukiskan "Halo, Dunia!";</code>
-                            <button class="copy-btn" onclick="copyText('lukiskan &quot;Halo, Dunia!&quot;;', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                             </div>
@@ -773,8 +772,8 @@
                             <p>Terminal akan membacakannya untukmu.</p>
                             <div class="install-code">
                                 <code>senandika hello.sen</code>
-                            <button class="copy-btn" onclick="copyText('senandika hello.sen', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                             </div>
@@ -791,8 +790,8 @@
                             <p>Ambil source code dari GitHub.</p>
                             <div class="install-code">
                                 <code>git clone https://github.com/zmy16/SenandCode.git</code>
-                            <button class="copy-btn" onclick="copyText('git clone https://github.com/zmy16/SenandCode.git', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                         </div>
@@ -805,8 +804,8 @@
                         <p>Pastikan Python 3.7+ sudah terinstal.</p>
                         <div class="install-code">
                             <code>cd SenandCode</code>
-                            <button class="copy-btn" onclick="copyText('cd SenandCode', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                         </div>
@@ -819,8 +818,8 @@
                         <p>Coba program pertama.</p>
                         <div class="install-code">
                             <code>python -m senandika examples/hello.sen</code>
-                            <button class="copy-btn" onclick="copyText('python -m senandika examples/hello.sen', this)">
-                                <span class="copy-tooltip">Tersalin</span>
+                            <button class="copy-btn" onclick="copyText('')">
+                                
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             </button>
                             </div>
@@ -946,13 +945,11 @@
 
         updateCode('hello');
 
-        function copyText(text, btn) {
+        function copyText(text) {
             navigator.clipboard.writeText(text);
-            const tooltip = btn.querySelector('.copy-tooltip');
-            if (tooltip) {
-                tooltip.classList.add('visible');
-                setTimeout(() => tooltip.classList.remove('visible'), 2000);
-            }
+            const sb = document.getElementById('snackbar');
+            sb.classList.add('show');
+            setTimeout(() => sb.classList.remove('show'), 2000);
         }
 
         window.addEventListener('scroll', () => {
