@@ -1,9 +1,0 @@
-// Contoh try-catch
-coba:
-    simpan 10 dalam a;
-    simpan 0 dalam b;
-raih e:
-    lukiskan "Error: " lalu e;
-akhirnya:
-    lukiskan "Beres.";
-selesai

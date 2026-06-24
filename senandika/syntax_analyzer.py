@@ -1,11 +1,213 @@
-class ParseError(SyntaxError):
+
+from dataclasses import dataclass, field
+from typing import Any, Optional
+
+
+class GayaError(SyntaxError):
+
+    def __init__(self, message: str, line: int = 0, col: int = 0):
+        self.line = line
+        self.col = col
+        super().__init__(f"[{line}:{col}] {message}" if line else message)
+
+
+class Expression:
     pass
 
 
-class Parser:
-    def __init__(self, tokens):
+@dataclass
+class NumberLiteral(Expression):
+    value: Any
+
+
+@dataclass
+class StringLiteral(Expression):
+    value: str
+
+
+@dataclass
+class BooleanLiteral(Expression):
+    value: bool
+
+
+@dataclass
+class NullLiteral(Expression):
+    pass
+
+
+@dataclass
+class VariableRef(Expression):
+    name: str
+
+
+@dataclass
+class ArrayLiteral(Expression):
+    items: list
+
+
+@dataclass
+class IndexAccess(Expression):
+    target: Expression
+    index: Expression
+
+
+@dataclass
+class BinaryOp(Expression):
+    left: Expression
+    operator: str
+    right: Expression
+
+
+@dataclass
+class UnaryOp(Expression):
+    operator: str
+    operand: Expression
+
+
+@dataclass
+class ThisRef(Expression):
+    pass
+
+
+@dataclass
+class MemberAccess(Expression):
+    obj: Expression
+    member: str
+
+
+@dataclass
+class MethodCall(Expression):
+    obj: Expression
+    method: str
+    args: list
+
+
+@dataclass
+class FuncCall(Expression):
+    name: str
+    args: list
+
+
+@dataclass
+class NewExpr(Expression):
+    class_name: str
+    args: list
+
+
+class Statement:
+    pass
+
+
+@dataclass
+class DeclareStmt(Statement):
+    name: str
+    value: Expression
+
+
+@dataclass
+class AssignStmt(Statement):
+    name: str
+    value: Expression
+
+
+@dataclass
+class IndexAssignStmt(Statement):
+    target: Expression
+    index: Expression
+    value: Expression
+
+
+@dataclass
+class MemberAssignStmt(Statement):
+    target_name: str
+    member: str
+    value: Expression
+
+
+@dataclass
+class PrintStmt(Statement):
+    expressions: list
+
+
+@dataclass
+class InputStmt(Statement):
+    variable: str
+    prompt: Optional[str]
+
+
+@dataclass
+class IfStmt(Statement):
+    branches: list  # [(condition: Expression, body: list[Statement])]
+    else_body: Optional[list[Statement]]
+
+
+@dataclass
+class ForStmt(Statement):
+    variable: str
+    start: Expression
+    end: Expression
+    body: list[Statement]
+
+
+@dataclass
+class WhileStmt(Statement):
+    condition: Expression
+    body: list[Statement]
+
+
+@dataclass
+class BreakStmt(Statement):
+    pass
+
+
+@dataclass
+class ContinueStmt(Statement):
+    pass
+
+
+@dataclass
+class FuncDef(Statement):
+    name: str
+    params: list
+    body: list[Statement]
+
+
+@dataclass
+class ReturnStmt(Statement):
+    value: Expression
+
+
+@dataclass
+class ClassDef(Statement):
+    name: str
+    parent: Optional[str]
+    body: list  # list of FuncDef + property tuples (for now)
+
+
+@dataclass
+class TryStmt(Statement):
+    try_body: list[Statement]
+    catch_var: Optional[str]
+    catch_body: Optional[list[Statement]]
+    finally_body: Optional[list[Statement]]
+
+
+@dataclass
+class ThrowStmt(Statement):
+    value: Expression
+
+
+@dataclass
+class ExprStmt(Statement):
+    expr: Expression
+
+
+class SyntaxAnalyzer:
+
+    def __init__(self, tokens: list):
         self.tokens = list(tokens)
         self.pos = 0
+
 
     def current_token(self):
         return self.tokens[self.pos] if self.pos < len(self.tokens) else None
@@ -13,13 +215,12 @@ class Parser:
     def eat(self, expected_kind=None):
         token = self.current_token()
         if not token:
-            raise ParseError("Tak terduga: akhir dari puisi")
-        if expected_kind and token[0] != expected_kind:
-            line = token[2] if len(token) > 2 else "?"
-            col = token[3] if len(token) > 3 else "?"
-            raise ParseError(
-                f"Baris {line}, kolom {col}: kuharap {expected_kind}, "
-                f"namun kudapat {token[0]} '{token[1]}'"
+            raise GayaError("Tak terduga: akhir dari puisi")
+        kind, value, line, col = token[0], token[1], token[2], token[3]
+        if expected_kind and kind != expected_kind:
+            raise GayaError(
+                f"Kuharap {expected_kind}, namun kudapat {kind} '{value}'",
+                line=line, col=col,
             )
         self.pos += 1
         return token
@@ -28,15 +229,17 @@ class Parser:
         idx = self.pos + offset
         return self.tokens[idx] if 0 <= idx < len(self.tokens) else None
 
-    def parse(self):
-        stmts = []
+
+    def olah(self):
+        stmts: list[Statement] = []
         while self.current_token():
             stmt = self.statement()
             if stmt is not None:
                 stmts.append(stmt)
         return stmts
 
-    def statement(self):
+
+    def statement(self) -> Optional[Statement]:
         tok = self.current_token()
         if not tok:
             return None
@@ -54,24 +257,24 @@ class Parser:
         elif k == "KEYWORD_BREAK":
             self.eat("KEYWORD_BREAK")
             self.eat("SEMICOLON")
-            return ("break",)
+            return BreakStmt()
         elif k == "KEYWORD_CONTINUE":
             self.eat("KEYWORD_CONTINUE")
             self.eat("SEMICOLON")
-            return ("continue",)
+            return ContinueStmt()
         elif k == "KEYWORD_FUNC":
-            return self.func_stmt()
+            return self.func_def()
         elif k == "KEYWORD_RETURN":
             return self.return_stmt()
         elif k == "KEYWORD_CLASS":
-            return self.class_stmt()
+            return self.class_def()
         elif k == "KEYWORD_TRY":
             return self.try_stmt()
         elif k == "KEYWORD_THROW":
             self.eat("KEYWORD_THROW")
             e = self.expression()
             self.eat("SEMICOLON")
-            return ("throw", e)
+            return ThrowStmt(value=e)
         elif k == "KEYWORD_INPUT":
             return self.input_stmt()
         elif k == "VARIABLE":
@@ -86,67 +289,71 @@ class Parser:
             return self.expr_stmt()
         elif k == "KEYWORD_END":
             self.eat("KEYWORD_END")
-            return ("end_block",)
+            return None  # sentinel, filtered in block()
         else:
             return self.expr_stmt()
 
-    def declare_stmt(self):
-        """simpan <expr> dalam <target>;  (target = variable or member_get)"""
+    def declare_stmt(self) -> Statement:
         self.eat("KEYWORD_DECLARE")
         expr = self.expression()
         self.eat("KEYWORD_IN")
         target = self.parse_assign_target()
         self.eat("SEMICOLON")
-        if isinstance(target, tuple) and target[0] == "variable":
-            return ("declare", target[1], expr)
-        elif isinstance(target, tuple) and target[0] == "member_get":
-            return ("member_assign", target, expr)
-        raise ParseError("Target harus berupa variabel atau anggota kelas")
+        if isinstance(target, VariableRef):
+            return DeclareStmt(name=target.name, value=expr)
+        elif isinstance(target, MemberAccess):
+            return self._member_assign_from_expr(target, expr)
+        raise GayaError("Target harus berupa variabel atau anggota kelas")
 
-    def assignment_stmt(self):
-        """<var> = <expr>;"""
+    def _member_assign_from_expr(self, target: MemberAccess, value: Expression) -> MemberAssignStmt:
+        if isinstance(target.obj, VariableRef):
+            return MemberAssignStmt(target_name=target.obj.name, member=target.member, value=value)
+        elif isinstance(target.obj, ThisRef):
+            return MemberAssignStmt(target_name="this", member=target.member, value=value)
+        raise GayaError("Target anggota tidak dikenali")
+
+    def assignment_stmt(self) -> Statement:
         name = self.eat("VARIABLE")[1]
         self.eat("OPERATOR")
         expr = self.expression()
         self.eat("SEMICOLON")
-        return ("assign", name, expr)
+        return AssignStmt(name=name, value=expr)
 
-    def member_assignment_stmt(self):
-        """<member_get|index_get> = <expr>;  OR just expr stmt with member/index access"""
+    def member_assignment_stmt(self) -> Statement:
         target = self.member_access()
-        if self.current_token() and self.current_token()[0] == "OPERATOR" and self.current_token()[1] == "=":
+        tok = self.current_token()
+        if tok and tok[0] == "OPERATOR" and tok[1] == "=":
             self.eat("OPERATOR")
             expr = self.expression()
             self.eat("SEMICOLON")
-            if isinstance(target, tuple) and target[0] == "index_get":
-                return ("index_assign", target[1], target[2], expr)
-            return ("member_assign", target, expr)
-        if self.current_token() and self.current_token()[0] == "SEMICOLON":
+            if isinstance(target, IndexAccess):
+                return IndexAssignStmt(target=target.target, index=target.index, value=expr)
+            elif isinstance(target, MemberAccess):
+                return self._member_assign_from_expr(target, expr)
+            return ExprStmt(expr=target)
+        if tok and tok[0] == "SEMICOLON":
             self.eat("SEMICOLON")
-        return ("expr", target)
+        return ExprStmt(expr=target)
 
-    def print_stmt(self):
-        """lukiskan <expr> (lalu <expr>)*;"""
+    def print_stmt(self) -> Statement:
         self.eat("KEYWORD_PRINT")
         exprs = [self.expression()]
         while self.current_token() and self.current_token()[0] == "KEYWORD_CONCAT":
             self.eat("KEYWORD_CONCAT")
             exprs.append(self.expression())
         self.eat("SEMICOLON")
-        return ("print", exprs)
+        return PrintStmt(expressions=exprs)
 
-    def input_stmt(self):
-        """dengarkan <var>;"""
+    def input_stmt(self) -> Statement:
         self.eat("KEYWORD_INPUT")
         name = self.eat("VARIABLE")[1]
         prompt = None
         if self.current_token() and self.current_token()[0] == "STRING":
             prompt = self.eat("STRING")[1][1:-1]
         self.eat("SEMICOLON")
-        return ("input", name, prompt)
+        return InputStmt(variable=name, prompt=prompt)
 
-    def if_stmt(self):
-        """seandainya <cond>: <body> (atau jika <cond>: <body>)* (jika tidak: <body>)? selesai"""
+    def if_stmt(self) -> Statement:
         self.eat("KEYWORD_IF")
         cond = self.expression()
         if self.current_token() and self.current_token()[0] == "KEYWORD_DO":
@@ -154,7 +361,7 @@ class Parser:
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
         body = self.block(stop_kinds={"KEYWORD_END", "KEYWORD_ELIF", "KEYWORD_ELSE"})
-        branches = [("if", cond, body)]
+        branches = [(cond, body)]
         else_body = None
         while self.current_token():
             tok = self.current_token()
@@ -166,7 +373,7 @@ class Parser:
                 if self.current_token() and self.current_token()[0] == "COLON":
                     self.eat("COLON")
                 body = self.block(stop_kinds={"KEYWORD_END", "KEYWORD_ELIF", "KEYWORD_ELSE"})
-                branches.append(("elif", cond, body))
+                branches.append((cond, body))
             elif tok[0] == "KEYWORD_ELSE":
                 self.eat("KEYWORD_ELSE")
                 if self.current_token() and self.current_token()[0] == "COLON":
@@ -178,10 +385,9 @@ class Parser:
                 break
         if self.current_token() and self.current_token()[0] == "KEYWORD_END":
             self.eat("KEYWORD_END")
-        return ("if_chain", branches, else_body)
+        return IfStmt(branches=branches, else_body=else_body)
 
-    def loop_stmt(self):
-        """untuk <var> = <start> sampai <end> (langkah <step>)? lakukan: <body> selesai"""
+    def loop_stmt(self) -> Statement:
         self.eat("KEYWORD_FOR")
         var = self.eat("VARIABLE")[1]
         self.eat("OPERATOR")
@@ -197,10 +403,9 @@ class Parser:
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
         body = self.block()
-        return ("loop", var, start, end, step, body)
+        return ForStmt(variable=var, start=start, end=end, body=body)
 
-    def while_stmt(self):
-        """selagi <cond> lakukan: <body> selesai"""
+    def while_stmt(self) -> Statement:
         self.eat("KEYWORD_WHILE")
         cond = self.expression()
         if self.current_token() and self.current_token()[0] == "KEYWORD_DO":
@@ -208,10 +413,9 @@ class Parser:
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
         body = self.block()
-        return ("while", cond, body)
+        return WhileStmt(condition=cond, body=body)
 
-    def func_stmt(self):
-        """puisi <name>(<params>): <body> selesai"""
+    def func_def(self) -> Statement:
         self.eat("KEYWORD_FUNC")
         name = self.eat("VARIABLE")[1]
         self.eat("LPAREN")
@@ -225,17 +429,15 @@ class Parser:
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
         body = self.block()
-        return ("function", name, params, body)
+        return FuncDef(name=name, params=params, body=body)
 
-    def return_stmt(self):
-        """kembalikan <expr>;"""
+    def return_stmt(self) -> Statement:
         self.eat("KEYWORD_RETURN")
         expr = self.expression()
         self.eat("SEMICOLON")
-        return ("return", expr)
+        return ReturnStmt(value=expr)
 
-    def class_stmt(self):
-        """wajah <name> (warisi <parent>)?: <body> selesai"""
+    def class_def(self) -> Statement:
         self.eat("KEYWORD_CLASS")
         name = self.eat("VARIABLE")[1]
         parent = None
@@ -245,10 +447,9 @@ class Parser:
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
         body = self.class_body()
-        return ("class", name, parent, body)
+        return ClassDef(name=name, parent=parent, body=body)
 
-    def try_stmt(self):
-        """coba: <body> (raih <var>: <body>)? (akhirnya: <body>)? selesai"""
+    def try_stmt(self) -> Statement:
         self.eat("KEYWORD_TRY")
         if self.current_token() and self.current_token()[0] == "COLON":
             self.eat("COLON")
@@ -270,41 +471,29 @@ class Parser:
             finally_body = self.block(stop_kinds={"KEYWORD_END"})
         if self.current_token() and self.current_token()[0] == "KEYWORD_END":
             self.eat("KEYWORD_END")
-        return ("try", try_body, catch_var, catch_body, finally_body)
+        return TryStmt(try_body=try_body, catch_var=catch_var, catch_body=catch_body, finally_body=finally_body)
 
-    def parse_assign_target(self):
-        """Parse a variable or member access as assignment target."""
-        tok = self.current_token()
-        if not tok:
-            raise ParseError("Tak terduga: akhir input saat parsing target")
-        if tok[0] == "KEYWORD_THIS":
-            self.eat("KEYWORD_THIS")
-            obj = ("this",)
-        elif tok[0] == "VARIABLE":
-            name = self.eat("VARIABLE")[1]
-            obj = ("variable", name)
-        else:
-            raise ParseError(f"Target tak dikenal: {tok[1]}")
-        while self.current_token() and self.current_token()[0] == "DOT":
-            self.eat("DOT")
-            member = self.eat("VARIABLE")[1]
-            obj = ("member_get", obj, member)
-        return obj
+    def expr_stmt(self) -> Statement:
+        expr = self.expression()
+        if self.current_token() and self.current_token()[0] == "SEMICOLON":
+            self.eat("SEMICOLON")
+        return ExprStmt(expr=expr)
 
-    def block(self, stop_kinds=None):
+
+    def block(self, stop_kinds=None) -> list[Statement]:
         if stop_kinds is None:
             stop_kinds = {"KEYWORD_END"}
-        stmts = []
+        stmts: list[Statement] = []
         while self.current_token():
             tok = self.current_token()
             if tok[0] in stop_kinds:
                 break
             s = self.statement()
-            if s is not None and s[0] != "end_block":
+            if s is not None:
                 stmts.append(s)
         return stmts
 
-    def class_body(self):
+    def class_body(self) -> list:
         items = []
         while self.current_token():
             tok = self.current_token()
@@ -317,12 +506,12 @@ class Parser:
                 self.eat("KEYWORD_IN")
                 target = self.parse_assign_target()
                 self.eat("SEMICOLON")
-                if isinstance(target, tuple) and target[0] == "variable":
-                    items.append(("property", target[1], expr))
-                elif isinstance(target, tuple) and target[0] == "member_get":
-                    items.append(("expr", ("member_assign", target, expr)))
+                if isinstance(target, VariableRef):
+                    items.append(("property", target.name, expr))
+                elif isinstance(target, MemberAccess):
+                    items.append(("expr", self._member_assign_from_expr(target, expr)))
                 else:
-                    raise ParseError("Target properti tidak valid")
+                    raise GayaError("Target properti tidak valid")
             elif tok[0] == "KEYWORD_FUNC":
                 self.eat("KEYWORD_FUNC")
                 name = self.eat("VARIABLE")[1]
@@ -337,100 +526,116 @@ class Parser:
                 if self.current_token() and self.current_token()[0] == "COLON":
                     self.eat("COLON")
                 body = self.block(stop_kinds={"KEYWORD_END"})
-                items.append(("function", name, params, body))
+                items.append(FuncDef(name=name, params=params, body=body))
                 if self.current_token() and self.current_token()[0] == "KEYWORD_END":
                     self.eat("KEYWORD_END")
             else:
                 break
         return items
 
-    def expr_stmt(self):
-        expr = self.expression()
-        if self.current_token() and self.current_token()[0] == "SEMICOLON":
-            self.eat("SEMICOLON")
-        return ("expr", expr)
 
-    def expression(self):
+    def parse_assign_target(self) -> Expression:
+        tok = self.current_token()
+        if not tok:
+            raise GayaError("Tak terduga: akhir input saat parsing target")
+        if tok[0] == "KEYWORD_THIS":
+            self.eat("KEYWORD_THIS")
+            obj: Expression = ThisRef()
+        elif tok[0] == "VARIABLE":
+            name = self.eat("VARIABLE")[1]
+            obj: Expression = VariableRef(name=name)
+        else:
+            raise GayaError(f"Target tak dikenal: {tok[1]}")
+        while self.current_token() and self.current_token()[0] == "DOT":
+            self.eat("DOT")
+            member = self.eat("VARIABLE")[1]
+            obj = MemberAccess(obj=obj, member=member)
+        return obj
+
+
+    def expression(self) -> Expression:
         return self.concat()
 
-    def concat(self):
+    def concat(self) -> Expression:
         node = self.logical_or()
         while self.current_token() and self.current_token()[0] == "KEYWORD_CONCAT":
             self.eat("KEYWORD_CONCAT")
-            node = ("binop", node, "concat", self.logical_or())
+            node = BinaryOp(left=node, operator="concat", right=self.logical_or())
         return node
 
-    def logical_or(self):
+    def logical_or(self) -> Expression:
         node = self.logical_and()
         while self.current_token() and self.current_token()[0] == "KEYWORD_OR":
             self.eat("KEYWORD_OR")
-            node = ("binop", node, "or", self.logical_and())
+            node = BinaryOp(left=node, operator="or", right=self.logical_and())
         return node
 
-    def logical_and(self):
+    def logical_and(self) -> Expression:
         node = self.not_operator()
         while self.current_token() and self.current_token()[0] == "KEYWORD_AND":
             self.eat("KEYWORD_AND")
-            node = ("binop", node, "and", self.not_operator())
+            node = BinaryOp(left=node, operator="and", right=self.not_operator())
         return node
 
-    def not_operator(self):
+    def not_operator(self) -> Expression:
         if self.current_token() and self.current_token()[0] == "KEYWORD_NOT":
             self.eat("KEYWORD_NOT")
-            return ("unop", "not", self.not_operator())
+            return UnaryOp(operator="not", operand=self.not_operator())
         return self.comparison()
 
-    def comparison(self):
+    def comparison(self) -> Expression:
         node = self.arithmetic()
         ops = {"==", "!=", "<", ">", "<=", ">="}
         while self.current_token() and self.current_token()[0] == "OPERATOR" and self.current_token()[1] in ops:
             op = self.eat("OPERATOR")[1]
-            node = ("binop", node, op, self.arithmetic())
+            node = BinaryOp(left=node, operator=op, right=self.arithmetic())
         return node
 
-    def arithmetic(self):
+    def arithmetic(self) -> Expression:
         node = self.term()
         while self.current_token() and self.current_token()[0] == "OPERATOR" and self.current_token()[1] in ("+", "-"):
             op = self.eat("OPERATOR")[1]
-            node = ("binop", node, op, self.term())
+            node = BinaryOp(left=node, operator=op, right=self.term())
         return node
 
-    def term(self):
+    def term(self) -> Expression:
         node = self.factor()
         while self.current_token() and self.current_token()[0] == "OPERATOR" and self.current_token()[1] in ("*", "/", "%"):
             op = self.eat("OPERATOR")[1]
-            node = ("binop", node, op, self.factor())
+            node = BinaryOp(left=node, operator=op, right=self.factor())
         return node
 
-    def factor(self):
+    def factor(self) -> Expression:
         tok = self.current_token()
         if not tok:
-            raise ParseError("Tak terduga: akhir dari puisi")
+            raise GayaError("Tak terduga: akhir dari puisi")
         k = tok[0]
+        line, col = tok[2], tok[3]
+
         if k == "LBRACKET":
             return self.array_literal()
         elif k == "NUMBER":
             self.eat("NUMBER")
-            return ("number", float(tok[1]) if "." in tok[1] else int(tok[1]))
+            return NumberLiteral(value=float(tok[1]) if "." in tok[1] else int(tok[1]))
         elif k == "STRING":
             self.eat("STRING")
-            return ("string", tok[1][1:-1])
+            return StringLiteral(value=tok[1][1:-1])
         elif k == "KEYWORD_TRUE":
             self.eat("KEYWORD_TRUE")
-            return ("boolean", True)
+            return BooleanLiteral(value=True)
         elif k == "KEYWORD_FALSE":
             self.eat("KEYWORD_FALSE")
-            return ("boolean", False)
+            return BooleanLiteral(value=False)
         elif k == "KEYWORD_NULL":
             self.eat("KEYWORD_NULL")
-            return ("null", None)
+            return NullLiteral()
         elif k == "KEYWORD_NEW":
             self.eat("KEYWORD_NEW")
             cls = self.eat("VARIABLE")[1]
             self.eat("LPAREN")
             args = self.parse_args_rparen()
             self.eat("RPAREN")
-            return ("new", cls, args)
+            return NewExpr(class_name=cls, args=args)
         elif k == "LPAREN":
             self.eat("LPAREN")
             node = self.expression()
@@ -438,23 +643,25 @@ class Parser:
             return node
         elif k == "OPERATOR" and tok[1] == "-":
             self.eat("OPERATOR")
-            return ("unop", "-", self.factor())
+            return UnaryOp(operator="-", operand=self.factor())
         elif k == "OPERATOR" and tok[1] == "+":
             self.eat("OPERATOR")
             return self.factor()
         elif k == "KEYWORD_THIS":
             self.eat("KEYWORD_THIS")
-            obj = ("this",)
+            obj: Expression = ThisRef()
             return self.handle_postfix(obj)
         elif k == "VARIABLE":
             name = self.eat("VARIABLE")[1]
-            obj = ("variable", name)
+            obj: Expression = VariableRef(name=name)
             return self.handle_postfix(obj)
         else:
-            raise ParseError(f"Tak terduga: {k} '{tok[1]}'")
+            raise GayaError(
+                f"Tak terduga: {k} '{tok[1]}'",
+                line=line, col=col,
+            )
 
-    def array_literal(self):
-        """Parse [item, item, ...] — trailing comma allowed."""
+    def array_literal(self) -> Expression:
         self.eat("LBRACKET")
         items = []
         if self.current_token() and self.current_token()[0] != "RBRACKET":
@@ -465,9 +672,9 @@ class Parser:
                     break
                 items.append(self.expression())
         self.eat("RBRACKET")
-        return ("array", items)
+        return ArrayLiteral(items=items)
 
-    def handle_postfix(self, obj):
+    def handle_postfix(self, obj: Expression) -> Expression:
         while self.current_token():
             if self.current_token()[0] == "DOT":
                 self.eat("DOT")
@@ -476,24 +683,28 @@ class Parser:
                     self.eat("LPAREN")
                     args = self.parse_args_rparen()
                     self.eat("RPAREN")
-                    obj = ("member_call", obj, member, args)
+                    obj = MethodCall(obj=obj, method=member, args=args)
                 else:
-                    obj = ("member_get", obj, member)
+                    obj = MemberAccess(obj=obj, member=member)
             elif self.current_token()[0] == "LPAREN":
                 self.eat("LPAREN")
                 args = self.parse_args_rparen()
                 self.eat("RPAREN")
-                obj = ("call", obj if isinstance(obj, str) else obj[1] if obj[0] == "variable" else None, args)
+                if isinstance(obj, VariableRef):
+                    obj = FuncCall(name=obj.name, args=args)
+                else:
+                    obj = FuncCall(name="", args=args)
             elif self.current_token()[0] == "LBRACKET":
                 self.eat("LBRACKET")
                 index = self.expression()
                 self.eat("RBRACKET")
-                obj = ("index_get", obj, index)
+                obj = IndexAccess(target=obj, index=index)
             else:
                 break
         return obj
 
-    def parse_args_rparen(self):
+
+    def parse_args_rparen(self) -> list[Expression]:
         args = []
         if self.current_token() and self.current_token()[0] != "RPAREN":
             args.append(self.expression())
@@ -502,13 +713,14 @@ class Parser:
                 args.append(self.expression())
         return args
 
-    def member_access(self):
+
+    def member_access(self) -> Expression:
         if self.current_token()[0] == "KEYWORD_THIS":
             self.eat("KEYWORD_THIS")
-            obj = ("this",)
+            obj: Expression = ThisRef()
         else:
             name = self.eat("VARIABLE")[1]
-            obj = ("variable", name)
+            obj: Expression = VariableRef(name=name)
         while self.current_token():
             if self.current_token()[0] == "DOT":
                 self.eat("DOT")
@@ -517,14 +729,14 @@ class Parser:
                     self.eat("LPAREN")
                     args = self.parse_args_rparen()
                     self.eat("RPAREN")
-                    obj = ("member_call", obj, member, args)
+                    obj = MethodCall(obj=obj, method=member, args=args)
                 else:
-                    obj = ("member_get", obj, member)
+                    obj = MemberAccess(obj=obj, member=member)
             elif self.current_token()[0] == "LBRACKET":
                 self.eat("LBRACKET")
                 index = self.expression()
                 self.eat("RBRACKET")
-                obj = ("index_get", obj, index)
+                obj = IndexAccess(target=obj, index=index)
             else:
                 break
         return obj

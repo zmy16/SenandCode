@@ -1,5 +1,3 @@
-"""Entry point utama SenandCode."""
-
 import sys
 import os
 import io
@@ -10,17 +8,16 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from senandika.lexer import Lexer
-from senandika.parser import Parser
-from senandika.interpreter import Interpreter
+from senandika.syntax_analyzer import SyntaxAnalyzer
+from senandika.interpreter import Penghayal
 
 
 def repl():
-    """Interactive REPL dengan state yang dipertahankan."""
     print("✦ SenandCode v0.1.0")
     print("  Setiap baris adalah puisi.")
     print('  Ketik "selesai" untuk keluar.\n')
 
-    interpreter = Interpreter([])
+    penghayal = Penghayal([])
 
     while True:
         try:
@@ -43,10 +40,10 @@ def repl():
             if not tokens:
                 continue
 
-            parser_obj = Parser(tokens)
-            ast = parser_obj.parse()
+            analyzer = SyntaxAnalyzer(tokens)
+            ast = analyzer.olah()
 
-            interpreter.execute(ast)
+            penghayal.jalankan(ast)
 
         except KeyboardInterrupt:
             print("\n  Sampai jumpa")
@@ -93,11 +90,11 @@ def main():
         lexer = Lexer(code)
         tokens = list(lexer.tokenize())
 
-        parser_obj = Parser(tokens)
-        ast = parser_obj.parse()
+        analyzer = SyntaxAnalyzer(tokens)
+        ast = analyzer.olah()
 
-        interpreter = Interpreter(ast)
-        interpreter.interpret()
+        penghayal = Penghayal(ast)
+        penghayal.hayal()
 
     except SyntaxError as e:
         print(f"  ✗ Indah namun tak terbaca: {e}")

@@ -1,7 +1,0 @@
-// Contoh fungsi
-puisi sapa(nama):
-    lukiskan "Halo, " lalu nama;
-selesai
-
-simpan "Asep" dalam nama;
-sapa(nama);

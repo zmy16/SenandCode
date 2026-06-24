@@ -1,5 +1,0 @@
-// Hitung mundur puitis
-untuk i = 5 sampai 1 lakukan:
-    lukiskan "Hitung: " lalu i;
-selesai
-lukiskan "Ledakan!";
