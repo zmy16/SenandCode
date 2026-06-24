@@ -1,5 +1,9 @@
 # SenandCode ✨
 
+<p align="center">
+  <img src="docs/favicon.svg" alt="SenandCode Logo" width="80">
+</p>
+
 > *Bahasa pemrograman puitis dalam Bahasa Indonesia*
 
 **SenandCode** — dari *senandika* (dialog batin yang puitis) + *code* — adalah bahasa pemrograman yang indah seperti puisi. Setiap baris adalah puisi. Setiap program adalah antologi.
