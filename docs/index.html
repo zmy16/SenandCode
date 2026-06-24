@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SenandCode — Bahasa Pemrograman Puitis</title>
     <meta name="description" content="SenandCode — bahasa pemrograman puitis dalam Bahasa Indonesia. Setiap baris adalah puisi. Setiap program adalah antologi.">
     <meta name="theme-color" content="#0a0a0a">
@@ -508,6 +508,7 @@
             font-weight: 700;
             letter-spacing: -0.03em;
             margin-bottom: 1rem;
+            text-wrap: balance;
         }
         .cta p {
             font-size: 1.125rem;
@@ -516,7 +517,10 @@
             font-weight: 300;
         }
         .cta .hero-actions {
+            display: flex;
+            justify-content: center;
             flex-wrap: wrap;
+            gap: 1rem;
         }
         .cta .btn {
             white-space: nowrap;
@@ -572,23 +576,43 @@
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links { display: none; }
-            nav { padding: 1.25rem 1.25rem; }
+            nav { padding: 1rem 1.25rem; }
+            .hero { padding-top: 5rem; }
+            .hero h1 { font-size: clamp(2rem, 10vw, 3rem); padding: 0 0.5rem; }
+            .hero-sub { font-size: 1rem; padding: 0 0.5rem; }
+            .hero-actions { flex-direction: column; width: 100%; max-width: 280px; }
+            .btn { justify-content: center; width: 100%; padding: 0.75rem 1.5rem; }
+            .features { padding: 4rem 1.25rem; }
+            .features-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .feature-card { padding: 1.5rem; }
+            .syntax { padding: 4rem 1.25rem; }
             .syntax-container { grid-template-columns: 1fr; }
             .syntax-content { position: static; }
             .syntax-tabs { flex-direction: row; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.5rem; }
-            .syntax-tab { white-space: nowrap; flex-shrink: 0; }
-            .features-grid { grid-template-columns: 1fr; }
-            .install-box { padding: 2rem 1.5rem; }
-            .install-step { flex-direction: column; gap: 0.75rem; }
-            .section-title { font-size: clamp(1.75rem, 6vw, 2.5rem); }
-            .section-desc { font-size: 1rem; }
-            .cta { padding: 5rem 1.25rem; }
-            .cta h2 { font-size: clamp(2rem, 6vw, 2.5rem); }
-            .hero-actions { flex-direction: column; width: 100%; max-width: 300px; }
-            .btn { justify-content: center; width: 100%; }
-            .hero-scroll { display: none; }
-            .features, .syntax, .install, .keywords { padding-left: 1.25rem; padding-right: 1.25rem; }
-            .footer-inner { flex-direction: column; text-align: center; }
+            .syntax-tab { white-space: nowrap; flex-shrink: 0; padding: 0.75rem 1rem; }
+            .section-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+            .section-desc { font-size: 0.9375rem; }
+            .install { padding: 4rem 1.25rem; }
+            .install-box { padding: 1.5rem; }
+            .install-tabs { flex-direction: row; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.75rem; }
+            .install-tab { white-space: nowrap; flex-shrink: 0; padding: 0.5rem 1rem; font-size: 0.8125rem; }
+            .install-step { flex-direction: column; gap: 0.5rem; }
+            .install-code { flex-direction: row; flex-wrap: wrap; }
+            .install-code code { flex: 1 1 auto; min-width: 0; word-break: break-all; }
+            .keywords { padding: 4rem 1.25rem; }
+            .cta { padding: 4rem 1.25rem; }
+            .cta h2 { font-size: clamp(1.75rem, 6vw, 2.25rem); }
+            .cta p { font-size: 1rem; }
+            .cta .hero-actions { flex-direction: column; width: 100%; max-width: 280px; }
+            .cta .btn { justify-content: center; width: 100%; }
+            footer { padding: 2rem 1.25rem; }
+            .footer-inner { flex-direction: column; text-align: center; gap: 0.75rem; }
+        }
+
+        @media (max-width: 375px) {
+            .hero h1 { font-size: 1.75rem; }
+            .section-title { font-size: 1.375rem; }
+            .nav-logo svg { width: 36px; height: 36px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
